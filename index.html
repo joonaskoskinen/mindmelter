@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MindMelter</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap">
+</head>
+<body>
+  <div class="stars"></div>
+  <div class="container">
+    <div class="lang-switch" onclick="toggleLang()">🇫🇮 / 🇬🇧</div>
+    <img src="https://dummyimage.com/100x100/ff0080/ffffff&text=MM" class="logo" alt="Logo">
+    <h1>MindMelter</h1>
+    <p id="instructions">Klikkaa illuusiota vasta, kun se muuttuu!</p>
+    <div id="test-container"></div>
+    <p id="feedback-text"></p>
+    <button id="start-button">Aloita testi</button>
+
+    <div id="results-screen" class="hidden fade-in">
+      <h2 id="thanks-text">Kiitos testaamisesta!</h2>
+      <p id="final-average"></p>
+      <div id="results-detail"></div>
+      <h3 id="age-compare-title">Keskimääräiset vasteajat ikäryhmittäin:</h3>
+      <div id="compare-table"></div>
+      <button id="restart-button">Testaa uudestaan</button>
+      <p style="margin-top: 15px;" id="donate-text">Haluatko tukea projektia?</p>
+      <a href="https://ko-fi.com/yourproject" target="_blank" id="donate-link">Lahjoita Ko-fi:ssa</a>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

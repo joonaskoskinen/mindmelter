@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MindMelter - Illuusiotesti</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap">
+  <style>
+    body {
+      background: radial-gradient(#000000, #111111);
+      color: #fff;
+      font-family: 'Orbitron', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      text-align: center;
+      max-width: 400px;
+      padding: 20px;
+    }
+
+    .logo {
+      width: 120px;
+      margin: 0 auto 10px;
+    }
+
+    .illusion {
+      width: 250px;
+      height: 250px;
+      margin: 20px auto;
+      cursor: pointer;
+      transition: filter 0.3s, outline 0.3s, box-shadow 0.3s, background 0.3s;
+    }
+
+    .illusion-grid {
+      background: linear-gradient(45deg, #fff 25%, transparent 25%),
+                  linear-gradient(-45deg, #fff 25%, transparent 25%),
+                  linear-gradient(45deg, transparent 75%, #fff 75%),
+                  linear-gradient(-45deg, transparent 75%, #fff 75%);
+      background-size: 40px 40px;
+      background-color: #222;
+    }
+
+    .illusion-perspective {
+      background: radial-gradient(circle, #666 0%, #111 80%);
+      box-shadow: inset 0 0 20px #000;
+    }
+
+    .illusion-ready {
+      outline: 3px solid #00ffcc !important;
+      filter: brightness(1.5) saturate(1.2);
+      box-shadow: 0 0 25px #00ffcc;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    button {
+      background-color: #ff0080;
+      border: none;
+      padding: 10px 20px;
+      color: white;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #ff66a3;
+    }
+
+    #language-selector {
+      margin-bottom: 10px;
+    }
+
+    .results-table {
+      margin-top: 15px;
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    .results-table th, .results-table td {
+      padding: 6px 10px;
+      border-bottom: 1px solid #555;
+    }
+
+    .results-table th {
+      text-align: left;
+      color: #00ffff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="https://dummyimage.com/120x120/ff0080/fff&text=MM" alt="MindMelter Logo" class="logo">
+    <h1 id="title">MindMelter</h1>
+    <select id="language-selector">
+      <option value="fi">Suomi</option>
+      <option value="en">English</option>
+      <option value="sv">Svenska</option>
+    </select>
+    <p id="description">Testaa, kuinka aivosi reagoivat visuaalisiin illuusioihin.</p>
+    <p id="instructions">Klikkaa illuusiota vasta, kun se muuttuu – pysy tarkkana ja testaa reaktiokykysi!</p>
+
+    <div id="test-container"></div>
+    <button id="start-button">Aloita testi</button>
+    <p id="result-text"></p>
+    <div id="results-detail"></div>
+    <div id="compare-table"></div>
+    <div id="progress"></div>
+    <button id="share-button" style="display:none">Jaa tuloksesi</button>
+    <div id="checkout-info" style="margin-top: 20px; display: none;">
+      <p><strong>Lahjoita projektille:</strong></p>
+      <a href="https://ko-fi.com/yourproject" style="color:#00ffff; text-decoration:underline;">Lahjoita Ko-fi:ssa</a>
+    </div>
+  </div>
+
+  <script>
+    const translations = {
+      fi: {
+        title: "MindMelter",
+        description: "Testaa, kuinka aivosi reagoivat visuaalisiin illuusioihin.",
+        start: "Aloita testi",
+        share: "Jaa tuloksesi",
+        buy: "Lahjoita projektille:",
+        tooEarly: "Hups! Nyt painoit liian aikaisin.",
+        done: "Testi valmis! Keskiarvoinen vasteaikasi: {avg}s",
+        reactionTime: "Vasteaika: {time}s",
+        wait: "Odota...",
+        now: "Klikkaa nyt!",
+        tableHeader: "Vasteaika (s)",
+        instructions: "Klikkaa illuusiota vasta, kun se muuttuu – pysy tarkkana ja testaa reaktiokykysi!"
+      },
+      en: {
+        title: "MindMelter",
+        description: "Test how your brain reacts to visual illusions.",
+        start: "Start Test",
+        share: "Share your results",
+        buy: "Donate to the project:",
+        tooEarly: "Oops! You clicked too early.",
+        done: "Test complete! Your average reaction time: {avg}s",
+        reactionTime: "Reaction time: {time}s",
+        wait: "Wait...",
+        now: "Click now!",
+        tableHeader: "Reaction Time (s)",
+        instructions: "Click the illusion only after it changes – stay sharp and test your reflexes!"
+      },
+      sv: {
+        title: "MindMelter",
+        description: "Testa hur din hjärna reagerar på visuella illusioner.",
+        start: "Starta testet",
+        share: "Dela dina resultat",
+        buy: "Donera till projektet:",
+        tooEarly: "Hoppsan! Du klickade för tidigt.",
+        done: "Testet klart! Din genomsnittliga reaktionstid: {avg}s",
+        reactionTime: "Reaktionstid: {time}s",
+        wait: "Vänta...",
+        now: "Klicka nu!",
+        tableHeader: "Reaktionstid (s)",
+        instructions: "Klicka bara när illusionen muuttuu – håll dig alert och testa din reaktion!"
+      }
+    };
+
+    const averageByAge = [
+      { range: '10–19', avg: 0.25 },
+      { range: '20–29', avg: 0.24 },
+      { range: '30–39', avg: 0.27 },
+      { range: '40–49', avg: 0.30 },
+      { range: '50–59', avg: 0.33 },
+      { range: '60+', avg: 0.36 },
+    ];
+
+    let currentLang = 'fi';
+
+    const elements = {
+      langSelect: document.getElementById('language-selector'),
+      title: document.getElementById('title'),
+      description: document.getElementById('description'),
+      instructions: document.getElementById('instructions'),
+      startButton: document.getElementById('start-button'),
+      shareButton: document.getElementById('share-button'),
+      checkoutText: document.querySelector('#checkout-info p'),
+      resultText: document.getElementById('result-text'),
+      testContainer: document.getElementById('test-container'),
+      resultsDetail: document.getElementById('results-detail'),
+      compareTable: document.getElementById('compare-table'),
+      progress: document.getElementById('progress'),
+      checkoutInfo: document.getElementById('checkout-info')
+    };
+
+    elements.langSelect.addEventListener('change', () => {
+      currentLang = elements.langSelect.value;
+      const t = translations[currentLang];
+      elements.title.textContent = t.title;
+      elements.description.textContent = t.description;
+      elements.startButton.textContent = t.start;
+      elements.shareButton.textContent = t.share;
+      elements.instructions.textContent = t.instructions;
+      elements.checkoutText.textContent = t.buy;
+    });
+
+    const illusions = [
+      { html: '<div class="illusion" style="background: repeating-conic-gradient(#ff0080 0% 25%, #00ffff 25% 50%); border-radius: 50%; animation: spin 2s linear infinite;"></div>' },
+      { html: '<div class="illusion illusion-grid"></div>' },
+      { html: '<div class="illusion illusion-perspective"></div>' }
+    ];
+
+    let currentIndex = 0;
+    let results = [];
+    let reactionStart = null;
+
+    elements.startButton.addEventListener('click', () => {
+      results = [];
+      currentIndex = 0;
+      elements.shareButton.style.display = 'none';
+      elements.checkoutInfo.style.display = 'none';
+      elements.resultsDetail.innerHTML = '';
+      elements.compareTable.innerHTML = '';
+      nextIllusion();
+    });
+
+    function nextIllusion() {
+      if (currentIndex >= illusions.length) {
+        const avg = results.reduce((a, b) => a + b, 0) / results.length;
+        elements.resultText.textContent = translations[currentLang].done.replace('{avg}', avg.toFixed(2));
+        renderResultsTable();
+        renderCompareTable(avg);
+        elements.shareButton.style.display = 'inline-block';
+        elements.checkoutInfo.style.display = 'block';
+        return;
+      }
+
+      const illusion = illusions[currentIndex];
+      elements.testContainer.classList.remove('fade-in');
+      void elements.testContainer.offsetWidth;
+      elements.testContainer.innerHTML = illusion.html;
+      elements.testContainer.classList.add('fade-in');
+
+      elements.progress.textContent = `Testi ${currentIndex + 1}/${illusions.length}`;
+      elements.resultText.textContent = translations[currentLang].wait;
+
+      let clicked = false;
+      let isReady = false;
+      const el = elements.testContainer.querySelector('.illusion');
+      const delay = Math.floor(Math.random() * 3000 + 1000);
+
+      const readyTimeout = setTimeout(() => {
+        el.classList.add('illusion-ready');
+        isReady = true;
+        reactionStart = performance.now();
+        elements.resultText.textContent = translations[currentLang].now;
+      }, delay);
+
+      el.addEventListener('click', () => {
+        if (clicked) return;
+        clicked = true;
+
+        if (!isReady) {
+          clearTimeout(readyTimeout);
+          elements.resultText.textContent = translations[currentLang].tooEarly;
+          setTimeout(() => {
+            currentIndex++;
+            nextIllusion();
+          }, 1500);
+          return;
+        }
+
+        const reactionEnd = performance.now();
+        const reactionTime = ((reactionEnd - reactionStart) / 1000).toFixed(2);
+        results.push(parseFloat(reactionTime));
+        elements.resultText.textContent = translations[currentLang].reactionTime.replace('{time}', reactionTime);
+        el.classList.remove('illusion-ready');
+        currentIndex++;
+        setTimeout(() => nextIllusion(), 1000);
+      });
+    }
+
+    function renderResultsTable() {
+      let html = '<table class="results-table"><tr><th>#</th><th>' + translations[currentLang].tableHeader + '</th></tr>';
+      results.forEach((r, i) => html += `<tr><td>${i + 1}</td><td>${r.toFixed(2)}</td></tr>`);
+      html += '</table>';
+      elements.resultsDetail.innerHTML = html;
+    }
+
+    function renderCompareTable(userAvg) {
+      let html = '<h3>Keskimääräiset vasteajat ikäryhmittäin:</h3>';
+      html += '<table class="results-table"><tr><th>Ikäryhmä</th><th>Keskimääräinen vasteaika (s)</th></tr>';
+      averageByAge.forEach(group => {
+        const highlight = Math.abs(userAvg - group.avg) < 0.03 ? ' style="color:#00ffcc"' : '';
+        html += `<tr${highlight}><td>${group.range}</td><td>${group.avg.toFixed(2)}</td></tr>`;
+      });
+      html += '</table>';
+      elements.compareTable.innerHTML = html;
+    }
+
+    elements.shareButton.addEventListener('click', () => {
+      const avg = (results.reduce((a, b) => a + b, 0) / results.length).toFixed(2);
+      const text = encodeURIComponent(`Tein MindMelter-illuusiotestin ja vasteaikani oli ${avg}s! Testaa itse osoitteessa mindmelter.io`);
+      const url = `https://twitter.com/intent/tweet?text=${text}`;
+      window.open(url, '_blank');
+    });
+  </script>
+</body>
+</html>
